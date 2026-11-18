@@ -30,7 +30,7 @@ function avisoEnCamino(p: PedidoK) {
   const sitio = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/$/, '');
   const donde = p.entrega === 'retiro' ? 'ya está listo para retirar' : `ya está en camino${p.cliente?.direccion ? ` a ${p.cliente.direccion}${p.cliente.localidad ? ', ' + p.cliente.localidad : ''}` : ''}`;
   const pago = p.estado_pago === 'pagado' ? 'Ya está pagado.' : `Total a abonar: ${fmt(Number(p.total))}.`;
-  const txt = `¡Hola${nombre ? ' ' + nombre : ''}! Te escribimos de Pianura Lácteos. Tu pedido #${p.id} ${donde}. ${pago}\nPodés seguirlo acá: ${sitio}/pedido/${p.codigo}\n¡Gracias por elegirnos!`;
+  const txt = `¡Hola${nombre ? ' ' + nombre : ''}! Te escribimos de Tienda Pianura. Tu pedido #${p.id} ${donde}. ${pago}\nPodés seguirlo acá: ${sitio}/pedido/${p.codigo}\n¡Gracias por elegirnos!`;
   return `https://wa.me/${waNumero(p.cliente?.telefono || '')}?text=${encodeURIComponent(txt)}`;
 }
 
