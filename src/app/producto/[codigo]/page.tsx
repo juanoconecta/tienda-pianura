@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { cargarTienda, modoDe, perfilActual } from '@/lib/datos';
 import { Comprar } from '@/components/Comprar';
 import { BarraCarrito } from '@/components/BarraCarrito';
-import { fmt, num, precioMinorista, tinta, visibleEn } from '@/lib/tienda';
+import { fmt, num, precioMinorista, tinta, visibleEn, esCombo, detalleCombo, precioSuelto } from '@/lib/tienda';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,8 +22,10 @@ export default async function Ficha({ params }: { params: Promise<{ codigo: stri
   const p = datos.productos.find((x) => x.codigo === codigo.toUpperCase());
   if (!p || !visibleEn(p, modo)) notFound();
   const may = modo === 'may';
+  const idx = Object.fromEntries(datos.productos.map((x) => [x.codigo, x]));
   const rel = datos.productos.filter((x) => x.familia === p.familia && x.codigo !== p.codigo && visibleEn(x, modo)).slice(0, 3);
   const pres = may ? (p.unidad === 'kg' ? `Horma de ${String(num(p.paso_mayorista)).replace('.', ',')} kg aprox. Se vende por horma.` : `Se vende por ${p.envase_mayorista || 'unidad'}.`)
+    : esCombo(p) ? `Combo: ${detalleCombo(p, idx)}.${precioSuelto(p, idx) > precioMinorista(p) ? ` Por separado sale ${fmt(precioSuelto(p, idx))}.` : ''}`
     : p.unidad === 'kg' ? (p.precio_horma ? `¼ kg, ½ kg, 1 kg o ${p.etiqueta_horma.toLowerCase()}. ${p.etiqueta_horma === 'Horma entera' ? 'Horma entera 8 % menos y ½ horma 5 % menos. ' : ''}Las hormas se cobran por peso real.` : '¼ kg, ½ kg o 1 kg.') : 'Por unidad. Precio final con IVA.';
   return (
     <main className="store wrap">
@@ -37,7 +39,7 @@ export default async function Ficha({ params }: { params: Promise<{ codigo: stri
           <dl className="specs">
             <div><dt>Presentación</dt><dd>{pres}</dd></div>
             <div><dt>Disponible</dt><dd>{num(p.stock) <= 0 ? <span className="stock-out">Agotado</span> : `${num(p.stock).toLocaleString('es-AR')} ${p.unidad === 'kg' ? 'kg' : 'u'}`}</dd></div>
-            <div><dt>Conservación</dt><dd>{p.familia === 'Dulce de leche' ? 'Lugar fresco y seco. Una vez abierto, en heladera.' : 'Mantener refrigerado.'}</dd></div>
+            <div><dt>Conservación</dt><dd>{esCombo(p) ? 'Mantener refrigerado lo que corresponda.' : p.familia === 'Dulce de leche' ? 'Lugar fresco y seco. Una vez abierto, en heladera.' : 'Mantener refrigerado.'}</dd></div>
             {!may && <div><dt>¿Sos comercio?</dt><dd><a className="linkb" href="/mayoristas">Pedí tu cuenta mayorista</a></dd></div>}
           </dl>
           <Comprar p={p} grande />

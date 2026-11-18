@@ -24,7 +24,12 @@ export type Producto = {
   precio_unidad: number | null;
   stock: number;
   publicado: boolean;
+  /** Solo combos: productos que incluye (kg para quesos, unidades para el resto). */
+  componentes?: Componente[] | null;
+  stock_minimo?: number | null;
 };
+
+export type Componente = { codigo: string; cantidad: number };
 
 export type Config = {
   banco_alias: string;
@@ -49,7 +54,8 @@ export const CONFIG_PUBLICA = 'banco_alias,banco_cbu,banco_titular,banco_cuit,ba
 export type Zona = { localidad: string; costo: number };
 export type DiaSinEntrega = { fecha: string; motivo: string; fecha_alternativa: string | null };
 
-export const FAMILIAS = ['Quesos blandos', 'Pasta hilada', 'Quesos semiduros', 'Quesos duros', 'Ricotta y crema', 'Dulce de leche'];
+export const COMBOS = 'Combos y promos';
+export const FAMILIAS = [COMBOS, 'Quesos blandos', 'Pasta hilada', 'Quesos semiduros', 'Quesos duros', 'Ricotta y crema', 'Dulce de leche'];
 
 export const num = (v: unknown) => (v === null || v === undefined ? 0 : Number(v));
 /** Color de texto legible sobre un color de fondo. */
@@ -80,6 +86,57 @@ export function presentaciones(p: Producto): Presentacion[] {
   }
   return a;
 }
+
+// ---------- Combos ----------
+export const esCombo = (p: Producto) => Array.isArray(p.componentes) && p.componentes.length > 0;
+
+/** Cuántos combos se pueden armar con el stock de sus componentes. */
+export function stockCombo(p: Producto, idx: Record<string, Producto>) {
+  if (!esCombo(p)) return num(p.stock);
+  return Math.max(0, Math.min(...p.componentes!.map((c) => {
+    const x = idx[c.codigo];
+    return x && num(c.cantidad) > 0 ? Math.floor((num(x.stock) + 1e-9) / num(c.cantidad)) : 0;
+  })));
+}
+
+/** Lo que costarían los componentes comprados por separado (lista minorista). */
+export function precioSuelto(p: Producto, idx: Record<string, Producto>) {
+  return (p.componentes ?? []).reduce((a, c) => {
+    const x = idx[c.codigo];
+    if (!x) return a;
+    return a + (x.unidad === 'kg' ? num(x.precio_kg) * num(c.cantidad) : num(x.precio_unidad) * num(c.cantidad));
+  }, 0);
+}
+
+/** Texto "½ kg Queso Cremoso + 2 Crema 200 cc". */
+export function detalleCombo(p: Producto, idx: Record<string, Producto>) {
+  return (p.componentes ?? []).map((c) => {
+    const x = idx[c.codigo];
+    const n = num(c.cantidad);
+    const q = x?.unidad === 'kg' ? (n === 0.25 ? '¼ kg' : n === 0.5 ? '½ kg' : `${String(n).replace('.', ',')} kg`) : `${n} ×`;
+    return `${q} ${x?.nombre ?? c.codigo}`;
+  }).join(' + ');
+}
+
+/** Combos con su stock calculado desde los componentes. */
+export function conStockCombos(ps: Producto[]) {
+  const idx = Object.fromEntries(ps.map((p) => [p.codigo, p]));
+  return ps.map((p) => (esCombo(p) ? { ...p, stock: stockCombo(p, idx) } : p));
+}
+
+/** Kg o unidades que consume una línea, repartidos por producto real (abre los combos). */
+export function consumo(lineas: { codigo: string; kg: number; cantidad: number }[], idx: Record<string, Producto>) {
+  const u: Record<string, number> = {};
+  for (const l of lineas) {
+    const p = idx[l.codigo];
+    if (p && esCombo(p)) for (const c of p.componentes!) u[c.codigo] = (u[c.codigo] || 0) + num(c.cantidad) * l.cantidad;
+    else u[l.codigo] = (u[l.codigo] || 0) + (l.kg || l.cantidad);
+  }
+  return u;
+}
+
+/** Debajo de este stock se avisa (si no se cargó, 10 kg o 12 unidades). */
+export const minimoDe = (p: Pick<Producto, 'unidad' | 'stock_minimo'>) => (p.stock_minimo === null || p.stock_minimo === undefined ? (p.unidad === 'kg' ? 10 : 12) : num(p.stock_minimo));
 
 export const precioMinorista = (p: Producto) => (p.unidad === 'u' ? num(p.precio_unidad) : num(p.precio_kg));
 export const visibleEn = (p: Producto, modo: Modo) =>

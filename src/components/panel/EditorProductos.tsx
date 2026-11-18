@@ -1,14 +1,14 @@
 'use client';
 import { useState } from 'react';
 import { supabaseNavegador } from '@/lib/supabase/client';
-import { num, type Producto } from '@/lib/tienda';
+import { esCombo, minimoDe, num, type Producto } from '@/lib/tienda';
 
-type Campo = 'precio_mayorista' | 'precio_kg' | 'precio_medio' | 'precio_cuarto' | 'precio_horma' | 'precio_unidad' | 'stock';
+type Campo = 'precio_mayorista' | 'precio_kg' | 'precio_medio' | 'precio_cuarto' | 'precio_horma' | 'precio_unidad' | 'stock' | 'stock_minimo';
 const PRECIOS: Campo[] = ['precio_mayorista', 'precio_kg', 'precio_medio', 'precio_cuarto', 'precio_horma', 'precio_unidad'];
 const r100 = (n: number) => Math.round(n / 100) * 100;
 
 export function EditorProductos({ inicial }: { inicial: Producto[] }) {
-  const [ps, setPs] = useState(inicial);
+  const [ps, setPs] = useState(() => inicial.filter((p) => !esCombo(p)));
   const [sucio, setSucio] = useState<Record<string, Partial<Producto>>>({});
   const [pct, setPct] = useState('');
   const [lista, setLista] = useState<'min' | 'may' | 'ambas'>('ambas');
@@ -66,12 +66,13 @@ export function EditorProductos({ inicial }: { inicial: Producto[] }) {
       </div>
       <div className="box tbl-wrap">
         <table className="edit">
-          <thead><tr><th>Producto</th><th className="num">Stock</th><th className="num">Mayorista</th><th className="num">1 kg / unidad</th><th className="num">½ kg</th><th className="num">¼ kg</th><th className="num">Horma</th><th>Publicado</th></tr></thead>
+          <thead><tr><th>Producto</th><th className="num">Stock</th><th className="num">Avisar debajo de</th><th className="num">Mayorista</th><th className="num">1 kg / unidad</th><th className="num">½ kg</th><th className="num">¼ kg</th><th className="num">Horma</th><th>Publicado</th></tr></thead>
           <tbody>
             {ps.map((p) => (
               <tr key={p.codigo} className={p.publicado ? '' : 'off'}>
                 <td><div className="pcell"><span className="dot sm" style={{ background: p.color }}>{p.codigo}</span><div><b>{p.nombre}</b><div className="meta">{p.familia}</div></div></div></td>
-                {celda(p, 'stock', true)}
+                <td className="num"><input className={'ni sm' + (num(p.stock) <= minimoDe(p) ? ' low' : '')} inputMode="decimal" aria-label={`stock de ${p.nombre}`} value={p.stock ?? ''} onChange={(e) => set(p.codigo, 'stock', e.target.value === '' ? 0 : Number(e.target.value.replace(',', '.')))} /></td>
+                <td className="num"><input className="ni sm" inputMode="decimal" aria-label={`stock mínimo de ${p.nombre}`} placeholder={String(p.unidad === 'kg' ? 10 : 12)} value={p.stock_minimo ?? ''} onChange={(e) => set(p.codigo, 'stock_minimo', e.target.value === '' ? null : Number(e.target.value.replace(',', '.')))} /></td>
                 {celda(p, 'precio_mayorista')}
                 {celda(p, p.unidad === 'u' ? 'precio_unidad' : 'precio_kg')}
                 {p.unidad === 'kg' ? celda(p, 'precio_medio') : <td />}

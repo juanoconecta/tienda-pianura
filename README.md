@@ -18,7 +18,7 @@ Una creación y desarrollo de **JuanoConecta**.
 
 ## Puesta en marcha
 
-1. **Supabase:** crear el proyecto y correr en orden, en el SQL Editor, los archivos de `supabase/migrations/` (0001 a 0005).
+1. **Supabase:** crear el proyecto y correr en orden, en el SQL Editor, los archivos de `supabase/migrations/` (0001 a 0006).
 2. **Dueño:** en la tabla `config`, cargar en `mails_dueno` el mail del dueño. Al entrar por primera vez con ese mail, queda como dueño.
 3. **Supabase, Authentication, URL Configuration:**
    - Site URL: la dirección de la tienda.

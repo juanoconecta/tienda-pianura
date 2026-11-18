@@ -1,6 +1,6 @@
 import 'server-only';
 import { supabaseServidor } from './supabase/server';
-import { CONFIG_PUBLICA, type Config, type DiaSinEntrega, type Modo, type Producto, type Zona } from './tienda';
+import { CONFIG_PUBLICA, conStockCombos, type Config, type DiaSinEntrega, type Modo, type Producto, type Zona } from './tienda';
 
 export type Perfil = {
   id: string; email: string | null; nombre: string | null; telefono: string | null; direccion: string | null; localidad: string | null;
@@ -34,7 +34,7 @@ export async function cargarTienda() {
     sb.from('dias_sin_entrega').select('*').gte('fecha', new Date(Date.now() - 864e5).toISOString().slice(0, 10)),
   ]);
   return {
-    productos: (p.data ?? []) as Producto[],
+    productos: conStockCombos((p.data ?? []) as Producto[]),
     config: c.data as unknown as Config,
     zonas: (z.data ?? []) as Zona[],
     dias: (d.data ?? []) as DiaSinEntrega[],

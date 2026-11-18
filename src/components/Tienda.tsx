@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Comprar } from './Comprar';
 import { BarraCarrito } from './BarraCarrito';
-import { FAMILIAS, fmt, num, precioMinorista, tinta, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
+import { FAMILIAS, detalleCombo, esCombo, fmt, num, precioMinorista, precioSuelto, tinta, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
 
 export type Entrega = { dia: string; fecha: string; cierre: string; salto: { fecha: string; motivo: string } | null };
 
@@ -12,6 +12,7 @@ export function Tienda({ productos, config, modo, entrega, nombre }: { productos
   const lista = productos.filter((p) => visibleEn(p, modo));
   const fams = FAMILIAS.filter((f) => lista.some((p) => p.familia === f));
   const ver = fam === 'Todos' ? fams : [fam];
+  const idx = Object.fromEntries(productos.map((p) => [p.codigo, p]));
   return (
     <main className="store wrap">
       <section className="hero">
@@ -54,7 +55,7 @@ export function Tienda({ productos, config, modo, entrega, nombre }: { productos
       {ver.map((f) => (
         <section key={f}>
           <div className="cat-title">{f}</div>
-          <div className="grid">{lista.filter((p) => p.familia === f).map((p) => <Tarjeta key={p.codigo} p={p} modo={modo} />)}</div>
+          <div className="grid">{lista.filter((p) => p.familia === f).map((p) => <Tarjeta key={p.codigo} p={p} modo={modo} idx={idx} />)}</div>
         </section>
       ))}
       <BarraCarrito productos={productos} config={config} />
@@ -62,19 +63,22 @@ export function Tienda({ productos, config, modo, entrega, nombre }: { productos
   );
 }
 
-function Tarjeta({ p, modo }: { p: Producto; modo: Modo }) {
+function Tarjeta({ p, modo, idx }: { p: Producto; modo: Modo; idx: Record<string, Producto> }) {
   const may = modo === 'may';
   const precio = may ? num(p.precio_mayorista) : precioMinorista(p);
   const sinStock = num(p.stock) <= 0;
-  const meta = may ? (p.unidad === 'kg' ? `Horma ≈ ${String(num(p.paso_mayorista)).replace('.', ',')} kg · se vende por horma` : `Se vende por ${p.envase_mayorista || 'unidad'}`) : (p.unidad === 'kg' ? 'Elegí la presentación' : 'Precio final con IVA');
+  const combo = esCombo(p);
+  const suelto = combo ? precioSuelto(p, idx) : 0;
+  const meta = combo ? detalleCombo(p, idx) : may ? (p.unidad === 'kg' ? `Horma ≈ ${String(num(p.paso_mayorista)).replace('.', ',')} kg · se vende por horma` : `Se vende por ${p.envase_mayorista || 'unidad'}`) : (p.unidad === 'kg' ? 'Elegí la presentación' : 'Precio final con IVA');
   return (
     <article className="card">
       <a className="swatch" href={`/producto/${p.codigo}`} aria-label={`Ver ${p.nombre}`} style={{ backgroundImage: `url(${p.imagen})` }}>
-        <span className="code" style={{ background: p.color, color: tinta(p.color) }}>{p.codigo}</span><span className="fam">{p.familia}</span>
+        <span className="code" style={{ background: p.color, color: tinta(p.color) }}>{p.codigo}</span><span className="fam">{combo ? 'Combo' : p.familia}</span>
       </a>
       <div className="card-b">
         <h4><a className="plink" href={`/producto/${p.codigo}`}>{p.nombre}</a></h4>
         <div className="price">{fmt(precio)}<small>{p.unidad === 'kg' ? '/kg' : '/u'}{may ? ' + IVA' : ''}</small></div>
+        {combo && suelto > precio && <div className="ahorro">Ahorrás {fmt(suelto - precio)} <s>{fmt(suelto)}</s></div>}
         <div className="meta">{meta}</div>
         {sinStock ? <div className="stock-out">Agotado</div> : num(p.stock) <= (p.unidad === 'kg' ? 10 : 12) ? <div className="stock-low">Quedan pocos</div> : null}
         <Comprar p={p} />

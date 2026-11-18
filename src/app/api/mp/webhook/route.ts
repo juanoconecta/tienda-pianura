@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { consultarPago, mpActivo } from '@/lib/mp';
+import { avisarPersonal } from '@/lib/avisos';
 
 // Mercado Pago avisa acá. Se vuelve a consultar el pago a MP antes de marcar nada como pagado.
 export async function POST(req: Request) {
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
   if (!ped) return NextResponse.json({ ok: true });
   if (pago.estado === 'approved' && pago.monto + 1 >= Number(ped.total) && ped.estado_pago !== 'pagado') {
     await sb.from('pedidos').update({ estado_pago: 'pagado', mp_pago: pago.id, actualizado: new Date().toISOString() }).eq('id', ped.id);
+    await avisarPersonal(`Pago recibido #${ped.id}`, `Mercado Pago aprobó $ ${Math.round(pago.monto).toLocaleString('es-AR')}.`, `/panel/pedidos#p${ped.id}`);
   }
   return NextResponse.json({ ok: true });
 }

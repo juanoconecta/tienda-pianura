@@ -3,6 +3,8 @@ import './globals.css';
 import { perfilActual, modoDe, STAFF } from '@/lib/datos';
 import { CarritoProvider, BotonCarrito } from '@/components/Carrito';
 import { NavLinks } from '@/components/NavLinks';
+import { WhatsappFlotante } from '@/components/WhatsappFlotante';
+import { supabaseServidor } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Pianura Lácteos · Tienda',
@@ -19,6 +21,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   let perfil = null;
   try { perfil = await perfilActual(); } catch { perfil = null; }
   const staff = !!perfil && STAFF.includes(perfil.rol);
+  let whatsapp = '';
+  try {
+    const { data } = await (await supabaseServidor()).from('config').select('whatsapp').eq('id', 1).single();
+    whatsapp = String(data?.whatsapp || '');
+  } catch { whatsapp = ''; }
   return (
     <html lang="es-AR" suppressHydrationWarning>
       <head>
@@ -46,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
           </header>
           {children}
+          <WhatsappFlotante numero={whatsapp} />
           <footer className="foot wrap"><div className="foot-in"><span>PIANURA Lácteos · Vila, Santa Fe · Así de simple. Así de bueno.</span><span>Una creación y desarrollo de <b>JuanoConecta</b></span></div></footer>
         </CarritoProvider>
       </body>

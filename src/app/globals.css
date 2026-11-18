@@ -438,3 +438,53 @@ html[data-intro] .intro{display:grid;place-items:center;position:fixed;inset:0;z
 /* Botón de aviso por WhatsApp en pedidos En camino */
 .oc .btn.wa{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:10px;background:#25D366;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:0}
 .oc .btn.wa:hover{background:#1EBE5A}
+
+/* WhatsApp flotante */
+.wa-float{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:45;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:#25D366;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.22);transition:transform .15s}
+.wa-float:hover{transform:scale(1.06)}
+@media (max-width:860px){.wa-float{bottom:calc(86px + env(safe-area-inset-bottom,0px));width:52px;height:52px}}
+
+/* Combos */
+.ahorro{margin:2px 0 4px;font-size:13px;font-weight:700;color:#1E8E4E}
+.ahorro s{font-weight:500;color:var(--muted,#8a8580);margin-left:6px}
+.combo-form .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.combo-form .field{margin-bottom:12px}
+.combo-form .lbl{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.combo-form .comp{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.combo-form .comp select{flex:1;min-width:160px}
+.combo-form .fotos{display:flex;gap:8px;flex-wrap:wrap}
+.combo-form .foto{width:64px;height:48px;border-radius:8px;background-size:cover;background-position:center;border:2px solid transparent;cursor:pointer}
+.combo-form .foto[aria-pressed="true"]{border-color:var(--accent,#FF8200)}
+@media (max-width:600px){.combo-form .grid2{grid-template-columns:1fr}}
+
+/* Stock bajo y avisos */
+.ni.low{border-color:#D9534F;background:#FDECEC}
+.box.alerta{border-left:4px solid #D9534F}
+.bajos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:10px}
+.bajos>div{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.box.avisos .btn{margin-top:6px}
+
+/* Exportar */
+.atajos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.atajo{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:10px}
+
+/* Hoja de reparto */
+.hoja{width:100%;border-collapse:collapse}
+.hoja th,.hoja td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.hoja .num{text-align:right;white-space:nowrap}
+.hoja .chk{width:28px;text-align:center}
+.parada{padding:10px 0;border-bottom:1px dashed var(--line)}
+.parada:last-child{border-bottom:0}
+.parada .r1{display:flex;justify-content:space-between;gap:10px}
+.parada .firma{margin-top:6px;font-size:12px;color:var(--muted,#8a8580)}
+.print-only{display:none}
+@media print{
+  .top,.foot,.side,.ptabs,.no-print,.wa-float,.mbar,.intro{display:none!important}
+  .print-only{display:block}
+  .print-only h1{font-size:20px;margin:0 0 10px}
+  body{background:#fff!important;color:#000}
+  .crm{display:block!important}
+  .box{box-shadow:none!important;border:1px solid #ccc;break-inside:avoid;margin-bottom:10px}
+  .parada{break-inside:avoid}
+  .kpis{display:flex;gap:10px}
+}
