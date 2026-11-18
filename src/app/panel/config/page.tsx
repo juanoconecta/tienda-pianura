@@ -1,12 +1,13 @@
 import { exigirPersonal } from '@/lib/panel';
 import { supabaseServidor } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { Configuracion, type ConfigFull, type CuponFull, type Dia, type ZonaFull } from '@/components/panel/Configuracion';
 
 export default async function PaginaConfig() {
   await exigirPersonal(true);
   const sb = await supabaseServidor();
   const [c, z, d, k] = await Promise.all([
-    sb.from('config').select('*').eq('id', 1).single(),
+    supabaseAdmin().from('config').select('*').eq('id', 1).single(), // incluye mails_dueno: solo el servidor lo lee
     sb.from('zonas_envio').select('*').order('localidad'),
     sb.from('dias_sin_entrega').select('*').order('fecha'),
     sb.from('cupones').select('*').order('codigo'),

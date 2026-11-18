@@ -43,6 +43,9 @@ export type Config = {
   lista_nombre: string;
 };
 
+/** Columnas de config que puede leer el público (mails_dueno queda fuera). */
+export const CONFIG_PUBLICA = 'banco_alias,banco_cbu,banco_titular,banco_cuit,banco_nombre,whatsapp,minimo_mayorista,descuento_volumen_kg,descuento_volumen_pct,envio_gratis_desde,cierre_dia,cierre_hora,entrega_dia,lista_nombre';
+
 export type Zona = { localidad: string; costo: number };
 export type DiaSinEntrega = { fecha: string; motivo: string; fecha_alternativa: string | null };
 

@@ -1,6 +1,6 @@
 import 'server-only';
 import { supabaseServidor } from './supabase/server';
-import type { Config, DiaSinEntrega, Modo, Producto, Zona } from './tienda';
+import { CONFIG_PUBLICA, type Config, type DiaSinEntrega, type Modo, type Producto, type Zona } from './tienda';
 
 export type Perfil = {
   id: string; email: string | null; nombre: string | null; telefono: string | null; direccion: string | null; localidad: string | null;
@@ -29,13 +29,13 @@ export async function cargarTienda() {
   const sb = await supabaseServidor();
   const [p, c, z, d] = await Promise.all([
     sb.from('productos').select('*').eq('publicado', true).order('orden'),
-    sb.from('config').select('*').eq('id', 1).single(),
+    sb.from('config').select(CONFIG_PUBLICA).eq('id', 1).single(),
     sb.from('zonas_envio').select('localidad,costo').eq('activa', true).order('localidad'),
     sb.from('dias_sin_entrega').select('*').gte('fecha', new Date(Date.now() - 864e5).toISOString().slice(0, 10)),
   ]);
   return {
     productos: (p.data ?? []) as Producto[],
-    config: c.data as Config,
+    config: c.data as unknown as Config,
     zonas: (z.data ?? []) as Zona[],
     dias: (d.data ?? []) as DiaSinEntrega[],
     error: p.error?.message || c.error?.message || null,
