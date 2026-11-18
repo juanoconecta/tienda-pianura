@@ -417,3 +417,20 @@ a.nav{text-decoration:none}
   .top .cartbtn{padding:7px 12px;font-size:13px;flex:none}
 }
 @media (max-width:360px){.top .nav-links a{padding:5px 6px;font-size:12px}.logo img{height:26px}}
+
+/* Intro del logo al entrar */
+.intro{display:none}
+html[data-intro] .intro{display:grid;place-items:center;position:fixed;inset:0;z-index:1000;background:#F4F0ED;pointer-events:none;animation:intro-out .45s ease 1.75s forwards}
+.intro-in{display:flex;flex-direction:column;align-items:center;gap:14px}
+.intro img{width:min(222px,58vw);height:auto;opacity:0;transform:scale(.82);animation:intro-logo .7s cubic-bezier(.2,.9,.3,1.2) .1s forwards}
+.intro-bar{display:block;height:3px;width:0;border-radius:3px;background:#FF8200;animation:intro-bar .55s ease .65s forwards}
+.intro-tag{font:600 13px/1 Montserrat,sans-serif;letter-spacing:.04em;color:#6F6F6E;opacity:0;transform:translateY(6px);animation:intro-tag .45s ease .95s forwards}
+@keyframes intro-logo{to{opacity:1;transform:none}}
+@keyframes intro-bar{to{width:120px}}
+@keyframes intro-tag{to{opacity:1;transform:none}}
+@keyframes intro-out{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){
+  html[data-intro] .intro{animation:intro-out .3s ease .6s forwards}
+  .intro img,.intro-bar,.intro-tag{animation:none;opacity:1;transform:none;width:auto}
+  .intro-bar{width:120px}
+}

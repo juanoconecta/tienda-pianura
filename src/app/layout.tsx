@@ -12,18 +12,29 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#FF8200' };
 
+// Intro del logo: una vez por visita (sesión del navegador), antes de pintar la página.
+const INTRO = "try{if(!sessionStorage.getItem('pianura-intro')&&!location.pathname.startsWith('/panel')){document.documentElement.setAttribute('data-intro','');sessionStorage.setItem('pianura-intro','1')}}catch(e){}";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   let perfil = null;
   try { perfil = await perfilActual(); } catch { perfil = null; }
   const staff = !!perfil && STAFF.includes(perfil.rol);
   return (
-    <html lang="es-AR">
+    <html lang="es-AR" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" />
+        <script dangerouslySetInnerHTML={{ __html: INTRO }} />
       </head>
       <body>
+        <div className="intro" aria-hidden="true">
+          <div className="intro-in">
+            <img src="/img/logo.png" alt="" width={222} height={79} />
+            <span className="intro-bar" />
+            <span className="intro-tag">Así de simple. Así de bueno.</span>
+          </div>
+        </div>
         <CarritoProvider modo={modoDe(perfil)}>
           <header className="top wrap">
             <div className="top-in">
