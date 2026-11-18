@@ -26,7 +26,16 @@ export function ActivarAvisos() {
       if (Notification.permission === 'denied') { setEstado('bloqueado'); return; }
       const reg = await navigator.serviceWorker.register('/sw.js');
       const sub = await reg.pushManager.getSubscription();
-      setEstado(sub ? 'activo' : 'apagado');
+      if (!sub) { setEstado('apagado'); return; }
+      // Si el servidor cambió de claves (o no conoce este dispositivo), se vuelve a enganchar.
+      const r = await fetch('/api/push/clave');
+      const clave = r.ok ? (await r.json()).clave as string : '';
+      const actual = sub.options.applicationServerKey ? new Uint8Array(sub.options.applicationServerKey) : null;
+      const nueva = clave ? b64aBytes(clave) : null;
+      const igual = !!actual && !!nueva && actual.length === nueva.length && actual.every((b, i) => b === nueva[i]);
+      if (!igual) { await sub.unsubscribe(); setEstado('apagado'); return; }
+      await fetch('/api/push/suscribir', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub.toJSON()) });
+      setEstado('activo');
     })().catch(() => setEstado('no-soporta'));
   }, []);
 
