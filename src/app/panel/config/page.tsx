@@ -12,6 +12,9 @@ export default async function PaginaConfig() {
     sb.from('dias_sin_entrega').select('*').order('fecha'),
     sb.from('cupones').select('*').order('codigo'),
   ]);
+  if (c.error || !c.data) {
+    return <div className="box"><h3>No se pudo leer la configuración</h3><p className="meta">El servidor no pudo entrar a la base. Revisá que la variable SUPABASE_SERVICE_ROLE_KEY de Vercel tenga la clave secreta correcta de Supabase.</p></div>;
+  }
   const { actualizado: _a, id: _i, ...config } = (c.data ?? {}) as ConfigFull & { actualizado: string; id: number };
   void _a; void _i;
   return (
