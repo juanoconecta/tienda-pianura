@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Comprar } from './Comprar';
 import { BarraCarrito } from './BarraCarrito';
-import { FAMILIAS, fmt, num, precioMinorista, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
+import { FAMILIAS, fmt, num, precioMinorista, tinta, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
 
 export type Entrega = { dia: string; fecha: string; cierre: string; salto: { fecha: string; motivo: string } | null };
 
@@ -83,7 +83,4 @@ function Tarjeta({ p, modo }: { p: Producto; modo: Modo }) {
   );
 }
 
-export function tinta(hex: string) {
-  const v = parseInt(hex.slice(1), 16), r = v >> 16, g = (v >> 8) & 255, b = v & 255;
-  return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? '#2B2725' : '#FFFFFF';
-}
+

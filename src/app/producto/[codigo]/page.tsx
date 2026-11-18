@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import { cargarTienda, modoDe, perfilActual } from '@/lib/datos';
 import { Comprar } from '@/components/Comprar';
 import { BarraCarrito } from '@/components/BarraCarrito';
-import { tinta } from '@/components/Tienda';
-import { fmt, num, precioMinorista, visibleEn } from '@/lib/tienda';
+import { fmt, num, precioMinorista, tinta, visibleEn } from '@/lib/tienda';
 
 export const dynamic = 'force-dynamic';
 

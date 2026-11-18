@@ -52,6 +52,11 @@ export type DiaSinEntrega = { fecha: string; motivo: string; fecha_alternativa: 
 export const FAMILIAS = ['Quesos blandos', 'Pasta hilada', 'Quesos semiduros', 'Quesos duros', 'Ricotta y crema', 'Dulce de leche'];
 
 export const num = (v: unknown) => (v === null || v === undefined ? 0 : Number(v));
+/** Color de texto legible sobre un color de fondo. */
+export function tinta(hex: string) {
+  const v = parseInt(hex.slice(1), 16), r = v >> 16, g = (v >> 8) & 255, b = v & 255;
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? '#2B2725' : '#FFFFFF';
+}
 export const fmt = (n: number) => '$ ' + Math.round(n).toLocaleString('es-AR');
 const r100 = (n: number) => Math.round(n / 100) * 100;
 
