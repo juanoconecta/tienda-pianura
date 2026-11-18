@@ -1,6 +1,7 @@
 import 'server-only';
 import webpush from 'web-push';
 import { supabaseAdmin } from './supabase/admin';
+import { waNumero } from './tienda';
 
 // Avisos al celular del personal (notificaciones push del navegador).
 // Las claves se crean solas la primera vez y quedan guardadas en la base, solo visibles para el servidor.
@@ -27,12 +28,14 @@ export async function clavesAvisos() {
 
 /** Aviso por WhatsApp al dueño con CallMeBot (gratis, solo a su propio número). Se activa con CALLMEBOT_TELEFONO y CALLMEBOT_APIKEY. */
 async function avisarWhatsapp(titulo: string, cuerpo: string, url: string) {
-  const tel = (process.env.CALLMEBOT_TELEFONO || '').replace(/[^\d+]/g, '');
+  // WhatsApp registra los celulares argentinos como +549...: se corrige si falta el 9 o sobra el 0/15.
+  const crudo = (process.env.CALLMEBOT_TELEFONO || '').replace(/\D/g, '');
+  const tel = crudo ? '+' + waNumero(crudo) : '';
   const key = process.env.CALLMEBOT_APIKEY || '';
   if (!tel || !key) return;
   const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
   const texto = `*${titulo}*\n${cuerpo}\n${sitio}${url}`;
-  const q = `phone=${encodeURIComponent(tel.startsWith('+') ? tel : '+' + tel)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
+  const q = `phone=${encodeURIComponent(tel)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
   try {
     const r = await fetch(`https://api.callmebot.com/whatsapp.php?${q}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     const cuerpo = (await r.text()).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').split(key).join('***').slice(0, 300);
