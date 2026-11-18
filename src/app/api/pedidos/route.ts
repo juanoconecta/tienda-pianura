@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     usuario: perfil?.id ?? null, modo, canal: 'Web', cliente,
     items: t.lineas.map((l) => ({ clave: l.clave, codigo: l.codigo, nombre: l.nombre, detalle: l.detalle, cantidad: l.cantidad, precio: l.precio, kg: l.kg, subtotal: l.subtotal })),
     subtotal: t.subtotal, descuento: t.descuentoVolumen + t.descuentoCupon, cupon: cupon?.codigo ?? null, iva: t.iva, envio: t.envio, total: t.total,
-    entrega, fecha_entrega: fecha, medio_pago: medio, notas: txt(body.notas, 500) || null,
+    entrega, fecha_entrega: fecha, medio_pago: medio, stock_usado: usado, notas: txt(body.notas, 500) || null,
   }).select('id,codigo').single();
   if (error || !ped) return err('No se pudo guardar el pedido. Probá de nuevo.', 500);
 

@@ -488,3 +488,18 @@ html[data-intro] .intro{display:grid;place-items:center;position:fixed;inset:0;z
   .parada{break-inside:avoid}
   .kpis{display:flex;gap:10px}
 }
+
+/* Legales y botón de arrepentimiento */
+.foot-links{display:flex;gap:6px 16px;flex-wrap:wrap}
+.foot-links a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.foot-links a:hover{color:var(--accent-text)}
+.foot-links .arrep{color:var(--accent-text);font-weight:700}
+.legal{max-width:760px;padding-block:28px 72px}
+.legal h1{margin:4px 0 6px}
+.legal h2{font-size:17px;margin:26px 0 6px}
+.legal p,.legal li{line-height:1.6}
+.legal ul{padding-left:20px}
+.legal a{color:var(--accent-text)}
+.legal form.box,.legal .ok-box{margin-block:18px}
+.legal textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:10px 12px;font:inherit;resize:vertical}
+.tramite{font-size:20px;letter-spacing:.08em;color:var(--accent-text)}

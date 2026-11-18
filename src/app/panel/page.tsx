@@ -1,5 +1,6 @@
 import { supabaseServidor } from '@/lib/supabase/server';
 import { esCombo, fmt, minimoDe, num, type Producto } from '@/lib/tienda';
+import { Arrepentimientos, type Arrep } from '@/components/panel/Arrepentimientos';
 import { ActivarAvisos } from '@/components/panel/ActivarAvisos';
 import { EnVivo, type PedidoFeed } from '@/components/panel/EnVivo';
 
@@ -8,10 +9,11 @@ type P = PedidoFeed & { estado: string; estado_pago: string; items: { nombre: st
 export default async function Tablero() {
   const sb = await supabaseServidor();
   const desde = new Date(Date.now() - 14 * 864e5).toISOString();
-  const [{ data: ped }, { count: sol }, { data: prods }] = await Promise.all([
+  const [{ data: ped }, { count: sol }, { data: prods }, { data: arr }] = await Promise.all([
     sb.from('pedidos').select('id,modo,total,creado,cliente,estado,estado_pago,items').gte('creado', desde).order('creado', { ascending: false }),
     sb.from('solicitudes_mayoristas').select('id', { count: 'exact', head: true }).eq('estado', 'Pendiente'),
     sb.from('productos').select('codigo,nombre,stock,unidad,stock_minimo,componentes,publicado').order('stock'),
+    sb.from('arrepentimientos').select('id,tramite,pedido,nombre,contacto,motivo,creado').eq('estado', 'Pendiente').order('creado'),
   ]);
   const ps = ((ped ?? []) as P[]).filter((p) => p.estado !== 'Cancelado');
   const ar = (d: string | number) => new Date(new Date(d).getTime() - 3 * 3600e3).toISOString().slice(0, 10);
@@ -51,6 +53,7 @@ export default async function Tablero() {
         </div>
         <div className="box"><h3>Últimos pedidos</h3><EnVivo inicial={ps.slice(0, 20)} /></div>
       </div>
+      <Arrepentimientos inicial={(arr ?? []) as Arrep[]} />
       {bajos.length > 0 && (
         <div className="box alerta">
           <h3>Stock bajo <small>reponer pronto</small></h3>

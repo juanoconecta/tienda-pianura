@@ -54,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </header>
           {children}
           <WhatsappFlotante numero={whatsapp} />
-          <footer className="foot wrap"><div className="foot-in"><span>PIANURA Lácteos · Vila, Santa Fe · Así de simple. Así de bueno.</span><span>Una creación y desarrollo de <b>JuanoConecta</b></span></div></footer>
+          <footer className="foot wrap"><div className="foot-in"><span>PIANURA Lácteos · Vila, Santa Fe · Así de simple. Así de bueno.</span><nav className="foot-links" aria-label="Legales"><a href="/terminos">Términos y condiciones</a><a href="/privacidad">Privacidad</a><a href="/arrepentimiento" className="arrep">Botón de arrepentimiento</a></nav><span>Una creación y desarrollo de <b>JuanoConecta</b></span></div></footer>
         </CarritoProvider>
       </body>
     </html>
