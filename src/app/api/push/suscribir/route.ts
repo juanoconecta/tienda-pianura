@@ -27,3 +27,11 @@ export async function DELETE(req: Request) {
   await supabaseAdmin().from('avisos_push').delete().eq('endpoint', String(b?.endpoint || '')).eq('usuario', p.id);
   return NextResponse.json({ ok: true });
 }
+
+/** Manda un aviso de prueba a todos los dispositivos y al WhatsApp configurado. */
+export async function PUT() {
+  const p = await perfilActual();
+  if (!p || !STAFF.includes(p.rol)) return solo();
+  await avisarPersonal('Aviso de prueba', 'Si ves esto, los avisos de la tienda funcionan.', '/panel');
+  return NextResponse.json({ ok: true });
+}

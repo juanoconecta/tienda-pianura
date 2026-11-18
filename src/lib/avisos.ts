@@ -34,8 +34,12 @@ async function avisarWhatsapp(titulo: string, cuerpo: string, url: string) {
   const texto = `*${titulo}*\n${cuerpo}\n${sitio}${url}`;
   const q = `phone=${encodeURIComponent(tel.startsWith('+') ? tel : '+' + tel)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
   try {
-    await fetch(`https://api.callmebot.com/whatsapp.php?${q}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-  } catch { /* si CallMeBot no responde, siguen los avisos al celular */ }
+    const r = await fetch(`https://api.callmebot.com/whatsapp.php?${q}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+    const cuerpo = (await r.text()).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').split(key).join('***').slice(0, 300);
+    console.log(`[avisos] CallMeBot ${r.status}: ${cuerpo}`);
+  } catch (e) {
+    console.log('[avisos] CallMeBot no respondió: ' + String((e as Error)?.message || e).split(key).join('***'));
+  }
 }
 
 /** Manda un aviso a todos los dispositivos del personal que lo activaron (y por WhatsApp si está configurado). Nunca tira error. */
@@ -54,6 +58,7 @@ export async function avisarPersonal(titulo: string, cuerpo: string, url = '/pan
         await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 60 * 60 * 12, urgency: 'high' });
       } catch (e) {
         const code = (e as { statusCode?: number }).statusCode;
+        console.log(`[avisos] push falló (${code ?? 'sin código'}) en ${s.endpoint.slice(0, 40)}`);
         if (code === 404 || code === 410) await sb.from('avisos_push').delete().eq('endpoint', s.endpoint);
       }
     }));

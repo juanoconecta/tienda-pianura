@@ -49,6 +49,12 @@ export function ActivarAvisos() {
       setMsg('No se pudieron activar los avisos. Probá de nuevo.');
     } finally { setOcupado(false); }
   }
+  async function probar() {
+    setOcupado(true); setMsg('');
+    const r = await fetch('/api/push/suscribir', { method: 'PUT' }).catch(() => null);
+    setOcupado(false);
+    setMsg(r?.ok ? 'Aviso de prueba enviado. Tiene que llegar en unos segundos.' : 'No se pudo enviar la prueba.');
+  }
   async function desactivar() {
     setOcupado(true);
     try {
@@ -66,8 +72,8 @@ export function ActivarAvisos() {
   return (
     <div className="box avisos">
       <h3>Avisos en este dispositivo</h3>
-      {estado === 'activo' && <><p className="meta">Activados. Te llega un aviso con cada pedido nuevo, cada pago de Mercado Pago y cuando un producto queda con poco stock.</p><button className="btn" type="button" disabled={ocupado} onClick={desactivar}>Desactivar en este dispositivo</button></>}
-      {estado === 'apagado' && <><p className="meta">Recibí un aviso en el celular con cada pedido nuevo, aunque no tengas el panel abierto.</p><button className="btn btn-p" type="button" disabled={ocupado} onClick={activar}>{ocupado ? 'Activando…' : 'Activar avisos'}</button></>}
+      {estado === 'activo' && <><p className="meta">Activados. Te llega un aviso con cada pedido nuevo, cada pago de Mercado Pago y cuando un producto queda con poco stock.</p><div className="tools"><button className="btn btn-p" type="button" disabled={ocupado} onClick={probar}>Mandar aviso de prueba</button><button className="btn" type="button" disabled={ocupado} onClick={desactivar}>Desactivar en este dispositivo</button></div></>}
+      {estado === 'apagado' && <><p className="meta">Recibí un aviso en el celular con cada pedido nuevo, aunque no tengas el panel abierto. Activalo en cada celular o computadora donde quieras recibirlos.</p><button className="btn btn-p" type="button" disabled={ocupado} onClick={activar}>{ocupado ? 'Activando…' : 'Activar avisos'}</button></>}
       {estado === 'iphone-instalar' && <p className="meta">En iPhone primero hay que agregar la tienda a la pantalla de inicio: en Safari tocá <b>Compartir</b> → <b>Agregar a inicio</b>. Abrila desde ese ícono, entrá al panel y volvé acá para activar los avisos.</p>}
       {estado === 'bloqueado' && <p className="meta">Las notificaciones están bloqueadas para este sitio. Habilitalas en los ajustes del navegador (o del iPhone, en Notificaciones → Pianura) y volvé a esta página.</p>}
       {estado === 'no-soporta' && <p className="meta">Este navegador no admite avisos. Probá con Chrome en Android o computadora, o en iPhone agregando la tienda a la pantalla de inicio.</p>}
