@@ -434,3 +434,7 @@ html[data-intro] .intro{display:grid;place-items:center;position:fixed;inset:0;z
   .intro img,.intro-bar,.intro-tag{animation:none;opacity:1;transform:none;width:auto}
   .intro-bar{width:120px}
 }
+
+/* Botón de aviso por WhatsApp en pedidos En camino */
+.oc .btn.wa{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px 10px;border-radius:10px;background:#25D366;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:0}
+.oc .btn.wa:hover{background:#1EBE5A}

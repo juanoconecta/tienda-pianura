@@ -12,6 +12,28 @@ export type PedidoK = {
 const MEDIO: Record<string, string> = { mp: 'Mercado Pago', transferencia: 'Transferencia', cuenta: 'Cuenta corriente' };
 const ENTREGA: Record<string, string> = { retiro: 'Retiro', envio: 'Envío', reparto: 'Reparto' };
 
+/** Celular argentino a formato de WhatsApp (549 + área + número, sin 0 ni 15). */
+function waNumero(tel: string) {
+  let d = String(tel || '').replace(/\D/g, '');
+  if (d.startsWith('549')) return d;
+  if (d.startsWith('54')) d = d.slice(2);
+  d = d.replace(/^0/, '');
+  if (d.length === 12) {
+    for (const area of [2, 3, 4]) if (d.slice(area, area + 2) === '15') { d = d.slice(0, area) + d.slice(area + 2); break; }
+  }
+  return '549' + d;
+}
+
+/** Mensaje de aviso al cliente cuando el pedido sale. */
+function avisoEnCamino(p: PedidoK) {
+  const nombre = (p.cliente?.nombre || '').split(' ')[0];
+  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/$/, '');
+  const donde = p.entrega === 'retiro' ? 'ya está listo para retirar' : `ya está en camino${p.cliente?.direccion ? ` a ${p.cliente.direccion}${p.cliente.localidad ? ', ' + p.cliente.localidad : ''}` : ''}`;
+  const pago = p.estado_pago === 'pagado' ? 'Ya está pagado.' : `Total a abonar: ${fmt(Number(p.total))}.`;
+  const txt = `¡Hola${nombre ? ' ' + nombre : ''}! Te escribimos de Pianura Lácteos. Tu pedido #${p.id} ${donde}. ${pago}\nPodés seguirlo acá: ${sitio}/pedido/${p.codigo}\n¡Gracias por elegirnos!`;
+  return `https://wa.me/${waNumero(p.cliente?.telefono || '')}?text=${encodeURIComponent(txt)}`;
+}
+
 export function Kanban({ inicial }: { inicial: PedidoK[] }) {
   const [ps, setPs] = useState(inicial);
   const [nuevos, setNuevos] = useState<number[]>([]);
@@ -60,11 +82,12 @@ export function Kanban({ inicial }: { inicial: PedidoK[] }) {
               {col.map((p) => (
                 <div className={'oc' + (nuevos.includes(p.id) ? ' new' : '')} key={p.id} id={'p' + p.id}>
                   <div className="r1"><span>#{p.id} · {p.modo === 'may' ? 'May' : 'Min'}</span><span>{fmt(Number(p.total))}</span></div>
-                  <div><b>{p.cliente?.nombre}</b>{p.cliente?.telefono && <> · <a href={`https://wa.me/${String(p.cliente.telefono).replace(/\D/g, '')}`} target="_blank" rel="noopener">{p.cliente.telefono}</a></>}</div>
+                  <div><b>{p.cliente?.nombre}</b>{p.cliente?.telefono && <> · <a href={`https://wa.me/${waNumero(p.cliente.telefono)}`} target="_blank" rel="noopener">{p.cliente.telefono}</a></>}</div>
                   <div className="items">{(p.items || []).map((l) => `${l.nombre} (${l.detalle})`).join(' · ')}</div>
                   <div className="meta">{ENTREGA[p.entrega]}{p.entrega === 'envio' ? `: ${p.cliente?.direccion || ''}, ${p.cliente?.localidad || ''}` : ''}{p.fecha_entrega ? ` · ${p.fecha_entrega.slice(8)}/${p.fecha_entrega.slice(5, 7)}` : ''}</div>
                   {p.notas && <div className="meta">Nota: {p.notas}</div>}
                   <div><span className={'pill ' + (p.estado_pago === 'pagado' ? 'g' : 'w')}>{MEDIO[p.medio_pago]} · {p.estado_pago === 'pagado' ? 'pagado' : 'pendiente'}</span></div>
+                  {e === 'En camino' && p.cliente?.telefono && <a className="btn wa" href={avisoEnCamino(p)} target="_blank" rel="noopener">Avisar por WhatsApp</a>}
                   <div className="acts">
                     {i < ESTADOS.length - 1 && <button className="adv" type="button" onClick={() => cambiar(p, { estado: ESTADOS[i + 1] })}>Pasar a {ESTADOS[i + 1]}</button>}
                     {p.estado_pago !== 'pagado' && <button className="adv" type="button" onClick={() => cambiar(p, { estado_pago: 'pagado' })}>Marcar pagado</button>}
