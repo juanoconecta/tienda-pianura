@@ -1,10 +1,11 @@
 'use client';
 import { usePathname } from 'next/navigation';
+import { waNumero } from '@/lib/tienda';
 
 /** Botón flotante para consultar por WhatsApp (no se muestra en el panel). */
 export function WhatsappFlotante({ numero }: { numero: string }) {
   const path = usePathname();
-  const d = numero.replace(/\D/g, '');
+  const d = numero.replace(/\D/g, '') ? waNumero(numero) : '';
   if (!d || path.startsWith('/panel')) return null;
   const txt = encodeURIComponent('¡Hola! Tengo una consulta sobre la tienda de Pianura.');
   return (

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabaseNavegador } from '@/lib/supabase/client';
-import { ESTADOS, fmt } from '@/lib/tienda';
+import { ESTADOS, fmt, waNumero } from '@/lib/tienda';
 
 export type PedidoK = {
   id: number; codigo: string; modo: string; cliente: { nombre?: string; telefono?: string; direccion?: string; localidad?: string };
@@ -11,18 +11,6 @@ export type PedidoK = {
 
 const MEDIO: Record<string, string> = { mp: 'Mercado Pago', transferencia: 'Transferencia', cuenta: 'Cuenta corriente' };
 const ENTREGA: Record<string, string> = { retiro: 'Retiro', envio: 'Envío', reparto: 'Reparto' };
-
-/** Celular argentino a formato de WhatsApp (549 + área + número, sin 0 ni 15). */
-function waNumero(tel: string) {
-  let d = String(tel || '').replace(/\D/g, '');
-  if (d.startsWith('549')) return d;
-  if (d.startsWith('54')) d = d.slice(2);
-  d = d.replace(/^0/, '');
-  if (d.length === 12) {
-    for (const area of [2, 3, 4]) if (d.slice(area, area + 2) === '15') { d = d.slice(0, area) + d.slice(area + 2); break; }
-  }
-  return '549' + d;
-}
 
 /** Mensaje de aviso al cliente cuando el pedido sale. */
 function avisoEnCamino(p: PedidoK) {
