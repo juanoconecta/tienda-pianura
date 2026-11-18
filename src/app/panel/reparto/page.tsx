@@ -1,6 +1,6 @@
 import { exigirPersonal } from '@/lib/panel';
 import { supabaseServidor } from '@/lib/supabase/server';
-import { fmt, num } from '@/lib/tienda';
+import { fmt, num, proximaEntrega, type Config, type DiaSinEntrega } from '@/lib/tienda';
 import { Imprimir } from '@/components/panel/Imprimir';
 
 export const metadata = { title: 'Hoja de reparto · Pianura' };
@@ -19,11 +19,19 @@ export default async function Reparto({ searchParams }: { searchParams: Promise<
   await exigirPersonal();
   const sb = await supabaseServidor();
   const hoy = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
-  // Fechas con pedidos abiertos, para elegir.
-  const { data: abiertos } = await sb.from('pedidos').select('fecha_entrega').gte('fecha_entrega', hoy).neq('estado', 'Cancelado').neq('estado', 'Entregado').order('fecha_entrega');
-  const fechas = [...new Set((abiertos ?? []).map((x) => x.fecha_entrega as string).filter(Boolean))];
+  const hace14 = new Date(Date.now() - 3 * 3600e3 - 14 * 864e5).toISOString().slice(0, 10);
+  // Fechas de entrega con pedidos (últimas 2 semanas y próximas), para elegir.
+  const [{ data: conPedidos }, { data: cfg }, { data: dias }] = await Promise.all([
+    sb.from('pedidos').select('fecha_entrega,estado').gte('fecha_entrega', hace14).neq('estado', 'Cancelado').order('fecha_entrega'),
+    sb.from('config').select('cierre_dia,cierre_hora,entrega_dia').eq('id', 1).single(),
+    sb.from('dias_sin_entrega').select('*'),
+  ]);
+  const fechas = [...new Set((conPedidos ?? []).map((x) => x.fecha_entrega as string).filter(Boolean))];
+  // Por defecto: el próximo día con pedidos sin entregar; si no hay, la próxima entrega.
+  const abierta = (conPedidos ?? []).find((x) => x.fecha_entrega >= hoy && x.estado !== 'Entregado')?.fecha_entrega as string | undefined;
+  const proxima = cfg ? proximaEntrega(cfg as Pick<Config, 'cierre_dia' | 'cierre_hora' | 'entrega_dia'>, (dias ?? []) as DiaSinEntrega[]).iso : hoy;
   const q = (await searchParams).fecha;
-  const fecha = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : fechas[0] || hoy;
+  const fecha = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : abierta || proxima;
   if (!fechas.includes(fecha)) fechas.push(fecha);
   fechas.sort();
 

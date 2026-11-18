@@ -102,7 +102,7 @@ export function EditorCombos({ inicial }: { inicial: Producto[] }) {
             <button className="btn" type="button" onClick={agregarComp}>+ Agregar producto</button>
           </div>
           <div className="field"><span className="lbl">Foto</span>
-            <div className="fotos">{IMAGENES.map((im) => <button key={im} type="button" className="foto" aria-pressed={f.imagen === im} aria-label={im} style={{ backgroundImage: `url(${im})` }} onClick={() => setF({ ...f, imagen: im })} />)}</div>
+            <div className="fotos">{IMAGENES.map((im) => <button key={im} type="button" className="foto" aria-pressed={f.imagen === im} aria-label={'Foto ' + im.replace('/img/', '').replace('.jpg', '')} style={{ backgroundImage: `url(${im})` }} onClick={() => setF({ ...f, imagen: im })} />)}</div>
           </div>
           <label className="sw"><input type="checkbox" checked={f.publicado} onChange={(e) => setF({ ...f, publicado: e.target.checked })} />Publicado en la tienda</label>
           {f.componentes.length > 0 && (
