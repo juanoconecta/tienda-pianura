@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cargarTienda, modoDe, perfilActual } from '@/lib/datos';
 import { Comprar } from '@/components/Comprar';
@@ -14,6 +15,20 @@ const RECETAS: Record<string, [string, string][]> = {
   'Ricotta y crema': [['Sorrentinos', 'Ricotta con nuez y queso rallado para el relleno.'], ['Salsa', 'Crema con queso azul para unos ñoquis.'], ['Postre', 'Ricotta con miel y nueces.']],
   'Dulce de leche': [['Panqueques', 'El clásico de los domingos.'], ['Alfajores de maicena', 'Bien rellenos y con coco rallado.'], ['Merienda', 'Con tostadas o en el mate cocido.']],
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ codigo: string }> }): Promise<Metadata> {
+  const { codigo } = await params;
+  const datos = await cargarTienda();
+  const p = datos.productos.find((x) => x.codigo === codigo.toUpperCase());
+  if (!p) return { title: 'Producto · Pianura' };
+  const precio = precioMinorista(p);
+  const descripcion = `${precio > 0 ? fmt(precio) + (p.unidad === 'kg' ? ' el kg. ' : '. ') : ''}${p.descripcion}`.trim();
+  return {
+    title: `${p.nombre} · Pianura`,
+    description: descripcion,
+    openGraph: { type: 'website', locale: 'es_AR', siteName: 'Tienda Pianura', title: `${p.nombre} · Tienda Pianura`, description: descripcion, url: `/producto/${p.codigo}` },
+  };
+}
 
 export default async function Ficha({ params }: { params: Promise<{ codigo: string }> }) {
   const { codigo } = await params;

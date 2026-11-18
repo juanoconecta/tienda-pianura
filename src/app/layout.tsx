@@ -6,9 +6,17 @@ import { NavLinks } from '@/components/NavLinks';
 import { WhatsappFlotante } from '@/components/WhatsappFlotante';
 import { supabaseServidor } from '@/lib/supabase/server';
 
+const SITIO = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
 export const metadata: Metadata = {
+  metadataBase: new URL(SITIO),
   title: 'Pianura Lácteos · Tienda',
   description: 'Quesos, cremas y dulce de leche de Pianura. Comprá por menor o por mayor.',
+  openGraph: {
+    type: 'website', locale: 'es_AR', siteName: 'Tienda Pianura', url: '/',
+    title: 'Tienda Pianura · Quesos, cremas y dulce de leche',
+    description: 'Comprá online los productos de Pianura Lácteos, de Vila, Santa Fe. Por menor o por mayor, con retiro o envío.',
+  },
+  twitter: { card: 'summary_large_image' },
   manifest: '/manifest.webmanifest',
   icons: { icon: '/img/icono-192.png', apple: '/img/icono-180.png' },
 };
