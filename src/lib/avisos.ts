@@ -25,8 +25,22 @@ export async function clavesAvisos() {
   return claves;
 }
 
-/** Manda un aviso a todos los dispositivos del personal que lo activaron. Nunca tira error. */
+/** Aviso por WhatsApp al dueño con CallMeBot (gratis, solo a su propio número). Se activa con CALLMEBOT_TELEFONO y CALLMEBOT_APIKEY. */
+async function avisarWhatsapp(titulo: string, cuerpo: string, url: string) {
+  const tel = (process.env.CALLMEBOT_TELEFONO || '').replace(/[^\d+]/g, '');
+  const key = process.env.CALLMEBOT_APIKEY || '';
+  if (!tel || !key) return;
+  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
+  const texto = `*${titulo}*\n${cuerpo}\n${sitio}${url}`;
+  const q = `phone=${encodeURIComponent(tel.startsWith('+') ? tel : '+' + tel)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
+  try {
+    await fetch(`https://api.callmebot.com/whatsapp.php?${q}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+  } catch { /* si CallMeBot no responde, siguen los avisos al celular */ }
+}
+
+/** Manda un aviso a todos los dispositivos del personal que lo activaron (y por WhatsApp si está configurado). Nunca tira error. */
 export async function avisarPersonal(titulo: string, cuerpo: string, url = '/panel/pedidos') {
+  await avisarWhatsapp(titulo, cuerpo, url);
   try {
     const sb = supabaseAdmin();
     const { data: subs } = await sb.from('avisos_push').select('endpoint,p256dh,auth');
