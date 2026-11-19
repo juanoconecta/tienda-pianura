@@ -44,7 +44,7 @@ export function Comprar({ p, grande }: { p: Producto; grande?: boolean }) {
           </div>
         ) : (
           <button className={`btn btn-p ${grande ? 'btn-lg' : ''}`} type="button" disabled={sinStock || !puede} onClick={() => setCantidad(clave, paso)}>
-            {sinStock ? 'Sin stock' : `Agregar${selP ? ' ' + selP.l : ' al carrito'}`}
+            {sinStock ? 'Sin stock' : 'Agregar al carrito'}
           </button>
         )}
       </div>
