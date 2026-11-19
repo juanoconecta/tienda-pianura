@@ -9,8 +9,8 @@ import { supabaseServidor } from '@/lib/supabase/server';
 const SITIO = (process.env.NEXT_PUBLIC_SITE_URL || 'https://tiendapianura.com.ar').replace(/\/$/, '');
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO),
-  title: 'Pianura Lácteos · Tienda',
-  description: 'Quesos, cremas y dulce de leche de Pianura. Comprá por menor o por mayor.',
+  title: 'Pianura Lácteos · Quesos, cremas y dulce de leche online | Vila, Santa Fe',
+  description: 'Comprá quesos por kg o por horma, crema de leche y dulce de leche de Pianura Lácteos, de Vila, Santa Fe. Por menor y por mayor: pedí hasta el jueves y te llega el viernes.',
   openGraph: {
     type: 'website', locale: 'es_AR', siteName: 'Tienda Pianura', url: '/',
     title: 'Tienda Pianura · Quesos, cremas y dulce de leche',

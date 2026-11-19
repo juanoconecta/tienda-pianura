@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { cargarTienda, modoDe, perfilActual } from '@/lib/datos';
 import { Comprar } from '@/components/Comprar';
 import { BarraCarrito } from '@/components/BarraCarrito';
+import { jsonProducto, ld } from '@/lib/seo';
 import { CONTROLAR_STOCK, fmt, num, precioMinorista, tinta, visibleEn, esCombo, detalleCombo, precioSuelto } from '@/lib/tienda';
 
 export const dynamic = 'force-dynamic';
@@ -24,8 +25,9 @@ export async function generateMetadata({ params }: { params: Promise<{ codigo: s
   const precio = precioMinorista(p);
   const descripcion = `${precio > 0 ? fmt(precio) + (p.unidad === 'kg' ? ' el kg. ' : '. ') : ''}${p.descripcion}`.trim();
   return {
-    title: `${p.nombre} · Pianura`,
+    title: `${p.nombre}${p.unidad === 'kg' ? ' por kg o por horma' : ''} · Pianura Lácteos`,
     description: descripcion,
+    alternates: { canonical: `/producto/${p.codigo}` },
     openGraph: { type: 'website', locale: 'es_AR', siteName: 'Tienda Pianura', title: `${p.nombre} · Tienda Pianura`, description: descripcion, url: `/producto/${p.codigo}` },
   };
 }
@@ -44,6 +46,7 @@ export default async function Ficha({ params }: { params: Promise<{ codigo: stri
     : p.unidad === 'kg' ? (p.precio_horma ? `¼ kg, ½ kg, 1 kg o ${p.etiqueta_horma.toLowerCase()}. ${p.etiqueta_horma === 'Horma entera' ? 'Horma entera 8 % menos y ½ horma 5 % menos. ' : ''}Las hormas se cobran por peso real.` : '¼ kg, ½ kg o 1 kg.') : 'Por unidad. Precio final con IVA.';
   return (
     <main className="store wrap">
+      {!may && <script type="application/ld+json" dangerouslySetInnerHTML={ld(jsonProducto(p))} />}
       <a className="back" href="/">← Volver al catálogo</a>
       <section className="pdp">
         <div className="pdp-img" role="img" aria-label={p.nombre} style={{ backgroundImage: `url(${p.imagen})` }}><span className="code" style={{ background: p.color, color: tinta(p.color) }}>{p.codigo}</span></div>
