@@ -20,7 +20,7 @@ export default async function Recordatorio() {
   ]);
   const c = (cfg ?? { cierre_dia: 4, cierre_hora: '10:30', entrega_dia: 5 }) as Pick<Config, 'cierre_dia' | 'cierre_hora' | 'entrega_dia'>;
   const e = proximaEntrega(c, (dias ?? []) as DiaSinEntrega[]);
-  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
+  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://tiendapianura.com.ar').replace(/\/$/, '');
   const msg = `¡Hola! Te recuerdo que esta semana tomamos pedidos de Pianura hasta el ${e.cierre.replace(/ h$/, '')} h. Lo que pidas te llega el ${e.dia} ${e.fecha}.\n\nHacé tu pedido acá: ${sitio}`;
 
   // Clientes con celular, sin repetir, del más reciente al más viejo.

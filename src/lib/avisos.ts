@@ -33,7 +33,7 @@ async function avisarWhatsapp(titulo: string, cuerpo: string, url: string) {
   const tel = crudo ? '+' + waNumero(crudo) : '';
   const key = process.env.CALLMEBOT_APIKEY || '';
   if (!tel || !key) return;
-  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
+  const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://tiendapianura.com.ar').replace(/\/$/, '');
   const texto = `*${titulo}*\n${cuerpo}\n${sitio}${url}`;
   const q = `phone=${encodeURIComponent(tel)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
   try {
@@ -53,7 +53,7 @@ export async function avisarPersonal(titulo: string, cuerpo: string, url = '/pan
     const { data: subs } = await sb.from('avisos_push').select('endpoint,p256dh,auth');
     if (!subs?.length) return;
     const k = await clavesAvisos();
-    const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
+    const sitio = (process.env.NEXT_PUBLIC_SITE_URL || 'https://tiendapianura.com.ar').replace(/\/$/, '');
     webpush.setVapidDetails(sitio, k.publica, k.privada);
     const payload = JSON.stringify({ titulo, cuerpo, url });
     await Promise.all(subs.map(async (s) => {

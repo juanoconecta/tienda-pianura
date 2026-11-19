@@ -6,7 +6,7 @@ import { NavLinks } from '@/components/NavLinks';
 import { WhatsappFlotante } from '@/components/WhatsappFlotante';
 import { supabaseServidor } from '@/lib/supabase/server';
 
-const SITIO = (process.env.NEXT_PUBLIC_SITE_URL || 'https://pianura-tienda.vercel.app').replace(/\/$/, '');
+const SITIO = (process.env.NEXT_PUBLIC_SITE_URL || 'https://tiendapianura.com.ar').replace(/\/$/, '');
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO),
   title: 'Pianura Lácteos · Tienda',
