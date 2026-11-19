@@ -5,7 +5,7 @@ const LINKS = [
   { href: '/panel', l: 'Tablero' },
   { href: '/panel/pedidos', l: 'Pedidos' },
   { href: '/panel/reparto', l: 'Hoja de reparto' },
-  { href: '/panel/productos', l: 'Productos y stock', admin: true },
+  { href: '/panel/productos', l: 'Productos y precios', admin: true },
   { href: '/panel/combos', l: 'Combos y promos', admin: true },
   { href: '/panel/clientes', l: 'Clientes' },
   { href: '/panel/exportar', l: 'Exportar ventas' },

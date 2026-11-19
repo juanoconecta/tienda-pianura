@@ -20,7 +20,7 @@ export default async function Terminos() {
       <h2>3. Precios y productos</h2>
       <p>Los precios están en pesos argentinos. En la compra minorista son precios finales con IVA incluido. En la compra mayorista los precios son netos y el IVA se muestra aparte en el carrito. Vale el precio que figura al confirmar el pedido.</p>
       <p>Los quesos en horma o fraccionados se venden por peso. El peso real puede variar un poco respecto del indicado, y se cobra el peso real; si la diferencia es importante te avisamos antes de entregar. Las fotos son ilustrativas.</p>
-      <p>Los pedidos están sujetos al stock disponible. Si por algún motivo no podemos cumplir con un producto, te avisamos y te devolvemos lo que hayas pagado por él.</p>
+      <p>Los productos se preparan por encargo y están sujetos a disponibilidad en fábrica. Si por algún motivo no podemos cumplir con un producto, te avisamos y te devolvemos lo que hayas pagado por él.</p>
 
       <h2>4. Pagos</h2>
       <p>Aceptamos Mercado Pago, transferencia bancaria y, para clientes mayoristas aprobados, cuenta corriente. Con transferencia, el pedido se prepara cuando recibimos el comprobante.</p>

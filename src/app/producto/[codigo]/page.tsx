@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { cargarTienda, modoDe, perfilActual } from '@/lib/datos';
 import { Comprar } from '@/components/Comprar';
 import { BarraCarrito } from '@/components/BarraCarrito';
-import { fmt, num, precioMinorista, tinta, visibleEn, esCombo, detalleCombo, precioSuelto } from '@/lib/tienda';
+import { CONTROLAR_STOCK, fmt, num, precioMinorista, tinta, visibleEn, esCombo, detalleCombo, precioSuelto } from '@/lib/tienda';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +53,7 @@ export default async function Ficha({ params }: { params: Promise<{ codigo: stri
           <p>{p.descripcion}</p>
           <dl className="specs">
             <div><dt>Presentación</dt><dd>{pres}</dd></div>
-            <div><dt>Disponible</dt><dd>{num(p.stock) <= 0 ? <span className="stock-out">Agotado</span> : `${num(p.stock).toLocaleString('es-AR')} ${p.unidad === 'kg' ? 'kg' : 'u'}`}</dd></div>
+            {CONTROLAR_STOCK ? <div><dt>Disponible</dt><dd>{num(p.stock) <= 0 ? <span className="stock-out">Agotado</span> : `${num(p.stock).toLocaleString('es-AR')} ${p.unidad === 'kg' ? 'kg' : 'u'}`}</dd></div> : <div><dt>Entrega</dt><dd>Por encargo: lo buscamos fresco en fábrica para la próxima entrega.</dd></div>}
             <div><dt>Conservación</dt><dd>{esCombo(p) ? 'Mantener refrigerado lo que corresponda.' : p.familia === 'Dulce de leche' ? 'Lugar fresco y seco. Una vez abierto, en heladera.' : 'Mantener refrigerado.'}</dd></div>
             {!may && <div><dt>¿Sos comercio?</dt><dd><a className="linkb" href="/mayoristas">Pedí tu cuenta mayorista</a></dd></div>}
           </dl>

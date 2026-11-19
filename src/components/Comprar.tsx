@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useCarrito } from './Carrito';
-import { fmt, kgEnCarrito, num, presentaciones, type Producto } from '@/lib/tienda';
+import { CONTROLAR_STOCK, fmt, kgEnCarrito, num, presentaciones, type Producto } from '@/lib/tienda';
 
 export function Comprar({ p, grande }: { p: Producto; grande?: boolean }) {
   const { carrito, modo, setCantidad } = useCarrito();
@@ -11,11 +11,11 @@ export function Comprar({ p, grande }: { p: Producto; grande?: boolean }) {
   const clave = modo === 'may' || !pres.length ? p.codigo : `${p.codigo}|${sel}`;
   const q = carrito[clave] || 0;
   const paso = modo === 'may' ? num(p.paso_mayorista) || 1 : 1;
-  const sinStock = num(p.stock) <= 0;
+  const sinStock = CONTROLAR_STOCK && num(p.stock) <= 0;
   // Control de stock: en kg para quesos (sumando todas las presentaciones), en unidades para el resto
   const usado = p.unidad === 'kg' ? kgEnCarrito(carrito, p, modo) : q;
   const sumaUno = p.unidad === 'kg' ? (modo === 'may' ? paso : selP?.kg ?? 1) : paso;
-  const puede = usado + sumaUno <= num(p.stock) + 1e-9;
+  const puede = !CONTROLAR_STOCK || usado + sumaUno <= num(p.stock) + 1e-9;
   const etiqueta = () => {
     if (modo === 'may') {
       const u = q / paso;

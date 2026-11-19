@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Comprar } from './Comprar';
 import { BarraCarrito } from './BarraCarrito';
-import { FAMILIAS, detalleCombo, esCombo, fmt, num, precioMinorista, precioSuelto, tinta, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
+import { CONTROLAR_STOCK, FAMILIAS, detalleCombo, esCombo, fmt, num, precioMinorista, precioSuelto, tinta, visibleEn, type Config, type Modo, type Producto } from '@/lib/tienda';
 
 export type Entrega = { dia: string; fecha: string; cierre: string; salto: { fecha: string; motivo: string } | null };
 
@@ -66,7 +66,7 @@ export function Tienda({ productos, config, modo, entrega, nombre }: { productos
 function Tarjeta({ p, modo, idx }: { p: Producto; modo: Modo; idx: Record<string, Producto> }) {
   const may = modo === 'may';
   const precio = may ? num(p.precio_mayorista) : precioMinorista(p);
-  const sinStock = num(p.stock) <= 0;
+  const sinStock = CONTROLAR_STOCK && num(p.stock) <= 0;
   const combo = esCombo(p);
   const suelto = combo ? precioSuelto(p, idx) : 0;
   const meta = combo ? detalleCombo(p, idx) : may ? (p.unidad === 'kg' ? `Horma ≈ ${String(num(p.paso_mayorista)).replace('.', ',')} kg · se vende por horma` : `Se vende por ${p.envase_mayorista || 'unidad'}`) : (p.unidad === 'kg' ? 'Elegí la presentación' : 'Precio final con IVA');
@@ -80,7 +80,7 @@ function Tarjeta({ p, modo, idx }: { p: Producto; modo: Modo; idx: Record<string
         <div className="price">{fmt(precio)}<small>{p.unidad === 'kg' ? '/kg' : '/u'}{may ? ' + IVA' : ''}</small></div>
         {combo && suelto > precio && <div className="ahorro">Ahorrás {fmt(suelto - precio)} <s>{fmt(suelto)}</s></div>}
         <div className="meta">{meta}</div>
-        {sinStock ? <div className="stock-out">Agotado</div> : num(p.stock) <= (p.unidad === 'kg' ? 10 : 12) ? <div className="stock-low">Quedan pocos</div> : null}
+        {sinStock ? <div className="stock-out">Agotado</div> : CONTROLAR_STOCK && num(p.stock) <= (p.unidad === 'kg' ? 10 : 12) ? <div className="stock-low">Quedan pocos</div> : null}
         <Comprar p={p} />
       </div>
     </article>

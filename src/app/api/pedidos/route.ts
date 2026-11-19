@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { perfilActual, modoDe } from '@/lib/datos';
 import { cuponVigente } from '@/lib/cupones';
 import { crearPreferencia, mpActivo } from '@/lib/mp';
-import { calcular, consumo, conStockCombos, minimoDe, num, proximaEntrega, type Carrito, type Config, type Cupon, type DiaSinEntrega, type Producto, type Zona } from '@/lib/tienda';
+import { CONTROLAR_STOCK, calcular, consumo, conStockCombos, minimoDe, num, proximaEntrega, type Carrito, type Config, type Cupon, type DiaSinEntrega, type Producto, type Zona } from '@/lib/tienda';
 
 const txt = (v: unknown, max = 200) => String(v ?? '').trim().slice(0, max);
 const err = (error: string, status = 400) => NextResponse.json({ error }, { status });
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   for (const [c, q] of Object.entries(usado)) {
     const p = reales[c];
     if (!p) return err('Uno de los productos ya no está disponible.');
-    if (q > num(p.stock) + 1e-6) return err(`No hay stock suficiente de ${p.nombre}. Quedan ${num(p.stock).toLocaleString('es-AR')}.`);
+    if (CONTROLAR_STOCK && q > num(p.stock) + 1e-6) return err(`No hay stock suficiente de ${p.nombre}. Quedan ${num(p.stock).toLocaleString('es-AR')}.`);
   }
 
   const cliente = {
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
 
   // Descontar stock, sumar uso del cupón y cargar la cuenta corriente.
   await Promise.all([
-    ...Object.entries(usado).map(([c, q]) => sb.rpc('descontar_stock', { p_codigo: c, p_cantidad: q })),
+    ...(CONTROLAR_STOCK ? Object.entries(usado) : []).map(([c, q]) => sb.rpc('descontar_stock', { p_codigo: c, p_cantidad: q })),
     cupon ? sb.rpc('usar_cupon', { p_codigo: cupon.codigo }) : null,
     medio === 'cuenta' && perfil ? sb.rpc('cargar_cuenta', { p_usuario: perfil.id, p_monto: t.total }) : null,
   ]);
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
   after(async () => {
     const quien = cliente.nombre + (modo === 'may' ? ' (mayorista)' : '');
     await avisarPersonal(`Pedido nuevo #${ped.id} · $ ${Math.round(t.total).toLocaleString('es-AR')}`, `${quien} · ${t.lineas.length} producto${t.lineas.length > 1 ? 's' : ''} · ${entrega === 'retiro' ? 'retira' : entrega === 'envio' ? 'envío a ' + cliente.localidad : 'reparto'}`, `/panel/pedidos#p${ped.id}`);
-    const bajos = Object.entries(usado).filter(([c, q]) => {
+    const bajos = (CONTROLAR_STOCK ? Object.entries(usado) : []).filter(([c, q]) => {
       const p = reales[c];
       const min = minimoDe(p);
       return num(p.stock) > min && num(p.stock) - q <= min;

@@ -135,6 +135,9 @@ export function consumo(lineas: { codigo: string; kg: number; cantidad: number }
   return u;
 }
 
+/** Venta por encargo: false = no se limita por stock (se junta lo pedido y se busca en fábrica). true = se controla y descuenta stock. */
+export const CONTROLAR_STOCK = false;
+
 /** Debajo de este stock se avisa (si no se cargó, 10 kg o 12 unidades). */
 export const minimoDe = (p: Pick<Producto, 'unidad' | 'stock_minimo'>) => (p.stock_minimo === null || p.stock_minimo === undefined ? (p.unidad === 'kg' ? 10 : 12) : num(p.stock_minimo));
 

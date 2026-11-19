@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   if (!/^https:\/\//.test(endpoint) || endpoint.length > 1000 || !p256dh || !auth) return NextResponse.json({ error: 'Datos inválidos.' }, { status: 400 });
   const { error } = await supabaseAdmin().from('avisos_push').upsert({ endpoint, usuario: p.id, p256dh, auth }, { onConflict: 'endpoint' });
   if (error) return NextResponse.json({ error: 'No se pudo guardar.' }, { status: 500 });
-  if (b?.probar) await avisarPersonal('Avisos activados', 'Vas a recibir acá cada pedido nuevo y los avisos de stock bajo.', '/panel');
+  if (b?.probar) await avisarPersonal('Avisos activados', 'Vas a recibir acá cada pedido nuevo y cada pago de Mercado Pago.', '/panel');
   return NextResponse.json({ ok: true });
 }
 

@@ -81,7 +81,7 @@ export function Kanban({ inicial }: { inicial: PedidoK[] }) {
                     {p.estado_pago !== 'pagado' && <button className="adv" type="button" onClick={() => cambiar(p, { estado_pago: 'pagado' })}>Marcar pagado</button>}
                     {p.comprobante && <button className="adv" type="button" onClick={() => verComprobante(p.comprobante!)}>Comprobante</button>}
                     {i > 0 && <button className="adv" type="button" onClick={() => cambiar(p, { estado: ESTADOS[i - 1] })}>Volver</button>}
-                    {e !== 'Entregado' && <button className="adv" type="button" onClick={() => { if (confirm(`¿Cancelar el pedido #${p.id}? Los productos vuelven al stock.${p.estado_pago === 'pagado' && p.medio_pago === 'mp' ? '\n\nOjo: ya está pagado por Mercado Pago. La devolución de la plata se hace desde tu cuenta de Mercado Pago.' : ''}`)) cambiar(p, { estado: 'Cancelado' }); }}>Cancelar</button>}
+                    {e !== 'Entregado' && <button className="adv" type="button" onClick={() => { if (confirm(`¿Cancelar el pedido #${p.id}?${p.estado_pago === 'pagado' && p.medio_pago === 'mp' ? '\n\nOjo: ya está pagado por Mercado Pago. La devolución de la plata se hace desde tu cuenta de Mercado Pago.' : ''}`)) cambiar(p, { estado: 'Cancelado' }); }}>Cancelar</button>}
                   </div>
                 </div>
               ))}

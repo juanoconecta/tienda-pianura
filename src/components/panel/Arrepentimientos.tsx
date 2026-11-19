@@ -16,7 +16,7 @@ export function Arrepentimientos({ inicial }: { inicial: Arrep[] }) {
   return (
     <div className="box alerta">
       <h3>Botón de arrepentimiento <small>{l.length} sin resolver</small></h3>
-      <p className="hint">Contactá al cliente, cancelá el pedido en Pedidos (el stock vuelve solo) y devolvé la plata por el mismo medio de pago.</p>
+      <p className="hint">Contactá al cliente, cancelá el pedido en Pedidos y devolvé la plata por el mismo medio de pago.</p>
       <div className="bajos">{l.map((a) => (
         <div key={a.id}>
           <span><b>{a.nombre}</b> · {a.contacto}{a.pedido ? <> · <a className="plink" href={`/panel/pedidos#p${a.pedido}`}>pedido #{a.pedido}</a></> : ''} · trámite {a.tramite}{a.motivo ? ` · “${a.motivo}”` : ''}</span>

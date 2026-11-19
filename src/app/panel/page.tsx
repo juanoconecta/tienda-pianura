@@ -1,5 +1,5 @@
 import { supabaseServidor } from '@/lib/supabase/server';
-import { esCombo, fmt, minimoDe, num, type Producto } from '@/lib/tienda';
+import { CONTROLAR_STOCK, esCombo, fmt, minimoDe, num, type Producto } from '@/lib/tienda';
 import { Arrepentimientos, type Arrep } from '@/components/panel/Arrepentimientos';
 import { ActivarAvisos } from '@/components/panel/ActivarAvisos';
 import { EnVivo, type PedidoFeed } from '@/components/panel/EnVivo';
@@ -22,7 +22,7 @@ export default async function Tablero() {
   const venta = semana.reduce((a, p) => a + num(p.total), 0);
   const pendPago = ps.filter((p) => p.estado_pago !== 'pagado').length;
   const abiertos = ps.filter((p) => p.estado !== 'Entregado').length;
-  const bajos = ((prods ?? []) as Producto[]).filter((p) => p.publicado && !esCombo(p) && num(p.stock) <= minimoDe(p));
+  const bajos = ((prods ?? []) as Producto[]).filter((p) => CONTROLAR_STOCK && p.publicado && !esCombo(p) && num(p.stock) <= minimoDe(p));
 
   // Ventas por día (14 días)
   const dias = Array.from({ length: 14 }, (_, i) => ar(Date.now() - (13 - i) * 864e5));
