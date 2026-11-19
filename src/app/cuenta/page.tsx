@@ -3,6 +3,7 @@ import { supabaseServidor } from '@/lib/supabase/server';
 import { fmt, ESTADOS } from '@/lib/tienda';
 import { Entrar } from '@/components/Entrar';
 import { MisDatos } from '@/components/MisDatos';
+import { Repetir } from '@/components/Repetir';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Mi cuenta · Pianura' };
@@ -14,7 +15,7 @@ export default async function Cuenta({ searchParams }: { searchParams: Promise<{
   const perfil = await perfilActual();
   if (!perfil) return <Entrar errorLink={sp.error === 'link'} />;
   const sb = await supabaseServidor();
-  const { data: pedidos } = await sb.from('pedidos').select('id,codigo,total,estado,estado_pago,creado,fecha_entrega').eq('usuario', perfil.id).order('creado', { ascending: false }).limit(30);
+  const { data: pedidos } = await sb.from('pedidos').select('id,codigo,total,estado,estado_pago,creado,fecha_entrega,items,modo').eq('usuario', perfil.id).order('creado', { ascending: false }).limit(30);
   const disp = Math.max(0, Number(perfil.limite_credito) - Number(perfil.saldo));
 
   return (
@@ -28,14 +29,14 @@ export default async function Cuenta({ searchParams }: { searchParams: Promise<{
           {!pedidos?.length ? <div className="empty"><b>Todavía no hiciste pedidos</b><a className="btn btn-p" href="/">Ir a la tienda</a></div> : pedidos.map((p) => {
             const paso = ESTADOS.indexOf(p.estado as (typeof ESTADOS)[number]);
             return (
-              <a className="ord" key={p.id} href={`/pedido/${p.codigo}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+              <div className="ord" key={p.id}><a href={`/pedido/${p.codigo}`} style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}>
                 <div className="ord-h"><b>#{p.id}</b><span className="meta">{new Date(p.creado).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}</span><b className="ord-t">{fmt(p.total)}</b></div>
                 <div className="ord-s">
                   <div className="mini-steps" aria-hidden>{ESTADOS.map((e, i) => <i key={e} className={i <= paso ? 'on' : ''} />)}</div>
                   <span className="pill">{p.estado}</span>
                   <span className={'pill ' + (p.estado_pago === 'pagado' ? 'g' : 'w')}>{p.estado_pago === 'pagado' ? 'Pagado' : 'Pago pendiente'}</span>
                 </div>
-              </a>
+              </a><Repetir items={p.items ?? []} modo={p.modo} chico /></div>
             );
           })}
         </section>

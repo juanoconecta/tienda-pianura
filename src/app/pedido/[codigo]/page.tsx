@@ -3,11 +3,12 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { fmt, ESTADOS } from '@/lib/tienda';
 import { SubirComprobante } from '@/components/SubirComprobante';
 import { Copiar } from '@/components/Copiar';
+import { Repetir } from '@/components/Repetir';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Tu pedido · Pianura', robots: { index: false } };
 
-type Item = { nombre: string; detalle: string; subtotal: number };
+type Item = { nombre: string; detalle: string; subtotal: number; clave?: string; codigo: string; cantidad: number };
 
 export default async function Pedido({ params }: { params: Promise<{ codigo: string }> }) {
   const { codigo } = await params;
@@ -48,6 +49,7 @@ export default async function Pedido({ params }: { params: Promise<{ codigo: str
         {Number(p.iva) > 0 && <div className="row"><span>IVA 21 %</span><span>{fmt(p.iva)}</span></div>}
         {p.modo === 'min' && p.entrega === 'envio' && <div className="row"><span>Envío</span><span>{Number(p.envio) ? fmt(p.envio) : 'Sin cargo'}</span></div>}
         <div className="row t"><span>Total</span><span>{fmt(p.total)}</span></div>
+        <Repetir items={items} modo={p.modo} />
         {wa && <a className="btn btn-wa" href={wa} target="_blank" rel="noopener" style={{ marginTop: 14 }}>Escribirnos por WhatsApp</a>}
       </section>
 
